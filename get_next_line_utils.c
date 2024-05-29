@@ -6,7 +6,7 @@
 /*   By: yohasega <yohasega@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/22 15:36:23 by yohasega          #+#    #+#             */
-/*   Updated: 2024/05/28 16:36:26 by yohasega         ###   ########.fr       */
+/*   Updated: 2024/05/29 22:46:10 by yohasega         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,12 @@ size_t	ft_strlen(const char *str)
 	return (i);
 }
 
+// new ft_strchr (add : NULLguard)
 char	*ft_strchr(const char *s, int c)
 {
 	c = (char)c;
+	// if (s == NULL)
+	// 	return (NULL);
 	while (*s)
 	{
 		if (*s == c)

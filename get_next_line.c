@@ -6,7 +6,7 @@
 /*   By: yohasega <yohasega@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/22 15:35:41 by yohasega          #+#    #+#             */
-/*   Updated: 2024/05/28 16:48:19 by yohasega         ###   ########.fr       */
+/*   Updated: 2024/05/29 22:50:38 by yohasega         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,33 @@
 
 char	*function1(int fd, char *temp)
 {
-	char	*str;
-	char	*get_str;
-	ssize_t	len;
+	char	*buf;
+	ssize_t	bytes;
 
-	str = (char *)ft_calloc(1, 1);
-	str = ft_strjoin(str, temp);
-	get_str = (char *)ft_calloc(1, BUFFER_SIZE + 1);
-	while (1)
+	// 初期化
+	buf = (char *)ft_calloc(1, sizeof(char) * (BUFFER_SIZE + 1));
+	if (buf == NULL)
+		return (NULL);
+	// tempに改行がないならEOFまでずっとループする
+	bytes = 1;
+	// 初回の初期化されたtempの場合のみ、０セットする
+	if (temp == NULL)
+		temp = (char *)ft_calloc(1, sizeof(char) * 1);
+	while (ft_strchr(temp, '\n') == NULL && bytes != 0)
 	{
-		len = read(fd, get_str, BUFFER_SIZE);
-		if (len < 0)
+		// 新しい文字列を取得
+		bytes = read(fd, buf, BUFFER_SIZE);
+		// 読み込みエラーならbufを解放し、NULLを返して即終了
+		if (bytes == -1)
+		{
+			free(buf);
 			return (NULL);
-		str = ft_strjoin(str, get_str);
-		if (ft_strchr(get_str, '\n') != NULL)
-			break ;
+		}
+		// 新しく取得した文字列を一時保存文字列に結合する
+		temp = ft_strjoin(temp, buf);
 	}
-	return (str);
+	// free (buf); // どうせこの関数が終わったら解放されるよね？？
+	return (temp);
 }
 
 char	*function2(char *str)
@@ -38,77 +48,73 @@ char	*function2(char *str)
 	size_t	len;
 	char	*line;
 
+	// 初期化
 	len = 0;
-	while (str[len] != '\n')
+	// 引数チェック
+	if (str[len] == 0)
+		return (NULL);
+	// 文字列が 行の終わり（ \0 か \n ）になる位置まで数える
+	while (str[len] != '\0' && str[len] != '\n')
 		len++;
+	// // １行分のメモリ（文字列 ＋ '\0' or '\n' ＋ '\0'）を確保
 	line = (char *)ft_calloc(1, sizeof(char) * (len + 2));
+	// メモリ確保に失敗したらNULLを返して即終了
+	if (line == NULL)
+		return (NULL);
+	// １行（ \0 か \n 含む）をコピー
 	ft_memcpy(line, str, len + 1);
 	return (line);
 }
 
-char	*function3(char *str, size_t start)
+char	*function3(char *temp, size_t line_end)
 {
 	size_t	len;
 	size_t	i;
-	char	*new_str;
+	char	*new_temp;
 
-	len = ft_strlen(str + start);
-	new_str = (char *)ft_calloc(1, sizeof(char) * (len + 1));
-	i = 0;
-	while (start - i)
+	// 余りの文字列の長さを数える
+	len = ft_strlen(temp) - line_end;
+	// これ以上文字列がなければtempを解放しし、NULLを返して即終了
+	if (len == 0)
 	{
-		str++;
+		free(temp);
+		return (NULL);
+	}
+	// 文字があれば新たにメモリ確保
+	new_temp = (char *)ft_calloc(1, sizeof(char) * (len + 1));
+	if (new_temp == NULL)
+		return (NULL);
+	// 残りの文字列をコピー
+	i = 0;
+	while (temp[line_end + i] != 0)
+	{
+		new_temp[i] = temp[line_end + i];
 		i++;
 	}
-	i = 0;
-	while (len - i > 0)
-	{
-		new_str[i] = str[i];
-		i++;
-	}
-	return (new_str);
+	// 元の一時保存文字列は不要になったのでメモリを解放
+	free(temp);
+	return (new_temp);
 }
 
 char	*get_next_line(int fd)
 {
-	char		*read_str;
-	static char	*temp_str;
-	size_t		len;
 	char		*line;
+	static char	*temp_str;
 
-	// （０）下準備系
+	// 引数チェック（ fd , BUFFER_SIZE ）　　// fd < 0 <- ０はいいとして１と２は？
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	// 新しい文字列を取得して一時保存する
+	temp_str = function1(fd, temp_str);
 	if (temp_str == NULL)
-		temp_str = (char *)ft_calloc(1, 1);
-	// 引数チェック（ fd , BUFFER_SIZE ）
-	if (fd <= 2 || BUFFER_SIZE < 0)
 		return (NULL);
-	// 初期化
-	len = 0;
-	// （１）文字列を取得する　＆　エラー処理
-	read_str = function1(fd, temp_str);
-	if (read_str == NULL)
-		return (NULL);
-	// （２）１行を作る
-	line = function2(read_str);
-	// （３）余りを静的変数に格納する
-	len = ft_strlen(line);
-	temp_str = function3(read_str, len);
+	// 一時保存の文字列から１行の文字列を作る
+	line = function2(temp_str);
+	// １行に入らなかった余りを新たに一時保存する
+	temp_str = function3(temp_str, ft_strlen(line));
+	// １行を返す
 	return (line);
 }
-
-// // 改行か終端が来るまで繰り返す
-// while (read_size > 0)
-// {
-// 	// 文字列を取得
-// 	read_size = read(fd, temp, BUFFER_SIZE);
-// 	// 旧文字列と合体して新文字列を作る
-// 	str = ft_strjoin(str, temp);
-// 	if (read_size > 0 && ft_strchr(temp, '\n'))
-// 	{
-// 		line = function1(str);
-// 		break ;
-// 	}
-// }
 
 // // BUFFER_SIZE 1 ver
 // char	*get_next_line(int fd)
@@ -131,40 +137,4 @@ char	*get_next_line(int fd)
 // 	// 文字列を出力する
 // 	ft_putstr_fd(str, 1);
 // 	return (str);
-// }
-
-// char	*get_next_line(int fd)
-// {
-// 	char		*temp;
-// 	char		*line;
-// 	int			read_size;
-
-// 	// 引数チェック
-// 	if (fd <= 2)
-// 		return (NULL);
-// 	// 改行までread関数(buf1)を繰り返して行を作る
-
-// 	// メモリ確保
-// 	temp = (char *)ft_calloc(1, BUFFER_SIZE);
-// 	// 確保に失敗したら解放
-// 	if (temp == NULL)
-// 		free(temp);
-// 	// read関数の戻り値を確認
-// 	read_size = read(fd, temp, BUFFER_SIZE);
-// 	// 読み取りに失敗した場合は、即終了
-// 	if (read_size == -1)
-// 		return (NULL);
-// 	// ファイルの終端に達してる場合は、文字列を出力して終了
-// 	else if (read_size == 0)
-// 	{
-// 		ft_putstr_fd(temp, 1);
-// 		return (temp);
-// 	}
-// 	// 終端なしで文字列を読み込んだ場合は、改行があるなら改行まで出力、なければNULL
-// 	else if (ft_strchr(temp, '\n'))
-// 	{
-// 		ft_putstr_fd(line, 1);
-// 		return (line);
-// 	}
-// 	return (NULL);
 // }
