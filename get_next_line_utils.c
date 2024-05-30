@@ -6,7 +6,7 @@
 /*   By: yohasega <yohasega@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/22 15:36:23 by yohasega          #+#    #+#             */
-/*   Updated: 2024/05/29 22:46:10 by yohasega         ###   ########.fr       */
+/*   Updated: 2024/05/30 15:22:33 by yohasega         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,22 +34,22 @@ void	*ft_calloc(size_t count, size_t size)
 	return (array);
 }
 
+// new ft_strlen (add : NULLguard)
 size_t	ft_strlen(const char *str)
 {
 	size_t	i;
 
+	if (str == NULL)
+		return (0);
 	i = 0;
 	while (str[i] != '\0')
 		i++;
 	return (i);
 }
 
-// new ft_strchr (add : NULLguard)
 char	*ft_strchr(const char *s, int c)
 {
 	c = (char)c;
-	// if (s == NULL)
-	// 	return (NULL);
 	while (*s)
 	{
 		if (*s == c)
@@ -76,7 +76,10 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 	return (dst);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+// change : char const *s1 -> char *s1
+// change : char const *s2 -> char *s2
+// add : free(s1)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*new_str;
 	size_t	length;
@@ -93,5 +96,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		return (new_str);
 	ft_memcpy((void *)new_str, (void *)s1, len_s1);
 	ft_memcpy((void *)new_str + len_s1, (void *)s2, len_s2);
+	free(s1);
 	return (new_str);
 }
