@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yohasega <yohasega@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 14:49:42 by yohasega          #+#    #+#             */
-/*   Updated: 2024/06/02 19:05:51 by yohasega         ###   ########.fr       */
+/*   Updated: 2024/06/02 19:06:04 by yohasega         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*free_nullset(char **str)
 {
@@ -86,22 +86,22 @@ int	remove_line_from_temp(char **str)
 
 char	*get_next_line(int fd)
 {
-	static char	*temp_str;
+	static char	*temp_str[4096];
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (ft_strchr(temp_str, '\n') == 0)
+	if (ft_strchr(temp_str[fd], '\n') == 0)
 	{
-		if (read_from_fd(fd, &temp_str) == 0)
+		if (read_from_fd(fd, &temp_str[fd]) == 0)
 			return (NULL);
 	}
-	line = get_newline(temp_str);
+	line = get_newline(temp_str[fd]);
 	if (line == NULL)
-		return (free_nullset(&temp_str));
-	if (remove_line_from_temp(&temp_str) == 0)
+		return (free_nullset(&temp_str[fd]));
+	if (remove_line_from_temp(&temp_str[fd]) == 0)
 	{
-		free_nullset(&temp_str);
+		free_nullset(&temp_str[fd]);
 		return (free_nullset(&line));
 	}
 	return (line);
@@ -112,21 +112,31 @@ char	*get_next_line(int fd)
 
 // int	main(void)
 // {
-// 	int fd;
-// 	int i;
-// 	char *line;
+// 	int		fd1;
+// 	int		fd2;
+// 	int		fd3;
+// 	int		i;
+// 	char	*line;
 
-// 	fd = open("./test.txt", O_RDONLY);
+// 	fd1 = open("./test.txt", O_RDONLY);
+// 	fd2 = open("./test1.txt", O_RDONLY);
+// 	fd3 = open("./test2.txt", O_RDONLY);
 // 	i = 0;
 // 	while (i < 2)
 // 	{
-// 		line = get_next_line(fd);
-// 		printf("%s", line);
-// 		if (line == NULL)
-// 			break ;
+// 		line = get_next_line(fd1);
+// 		printf("line [%02d]: %s", i, line);
+// 		free(line);
+// 		line = get_next_line(fd2);
+// 		printf("line [%02d]: %s", i, line);
+// 		free(line);
+// 		line = get_next_line(fd3);
+// 		printf("line [%02d]: %s", i, line);
 // 		free(line);
 // 		i++;
 // 	}
-// 	close(fd);
+// 	close(fd1);
+// 	close(fd2);
+// 	close(fd3);
 // 	return (0);
 // }
