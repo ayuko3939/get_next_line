@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yohasega <yohasega@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yohasega <yohasega@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 14:52:16 by yohasega          #+#    #+#             */
-/*   Updated: 2024/06/02 17:58:40 by yohasega         ###   ########.fr       */
+/*   Updated: 2024/07/12 19:13:56 by yohasega         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	if (s == 0 || len == 0 || ft_strlen(s) < start)
 	{
 		substr = (char *)malloc(sizeof(char) * 1);
+		if (substr == NULL)
+			return (NULL);
 		substr[0] = '\0';
 		return ((char *)substr);
 	}

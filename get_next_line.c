@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yohasega <yohasega@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yohasega <yohasega@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 14:49:42 by yohasega          #+#    #+#             */
-/*   Updated: 2024/06/02 19:05:51 by yohasega         ###   ########.fr       */
+/*   Updated: 2024/09/29 19:41:25 by yohasega         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,19 +113,18 @@ char	*get_next_line(int fd)
 // int	main(void)
 // {
 // 	int fd;
-// 	int i;
 // 	char *line;
 
-// 	fd = open("./test.txt", O_RDONLY);
-// 	i = 0;
-// 	while (i < 2)
+// 	fd = open("get_next_line.c", O_RDONLY);
+// 	while (1)
 // 	{
 // 		line = get_next_line(fd);
 // 		printf("%s", line);
 // 		if (line == NULL)
 // 			break ;
 // 		free(line);
-// 		i++;
+// 		if (line == NULL)
+// 			break;
 // 	}
 // 	close(fd);
 // 	return (0);
